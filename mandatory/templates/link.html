@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %} Index {% endblock %}
+
+{% block content %}
+<form action="/link/qr" method="POST">
+    <div class="form-group">
+        <label for="link">Link</label>
+        <input class="form-control" type="text" id="link" name="link" placeholder="www.google.com">
+    </div>
+    <button type="submit" class="btn btn-success">Generate QR</button>
+</form>
+{% endblock %}

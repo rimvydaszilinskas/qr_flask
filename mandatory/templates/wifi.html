@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %} Index {% endblock %}
+
+{% block content %}
+<form action="/wifi/qr" method="POST">
+    <div class="form-group">
+        <label for="ssid">SSID</label>
+        <input class="form-control" type="text" id="ssid" name="ssid" placeholder="SSID">
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input class="form-control" type="password" id="password" name="password" placeholder="SSID">
+    </div>
+    <div class="form-group">
+        <label for="security">Security</label>
+        <select class="custom-select" id="security" name="security">
+            <option value="nopass">None</option>
+            <option value="WEP">WEP</option>
+            <option value="WPA">WPA</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="hidden">Hidden</label>
+        <select class="custom-select" id="hidden" name="hidden">
+            <option value="visible">No</option>
+            <option value="hidden">Yes</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">Generate QR</button>
+</form>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %} Index {% endblock %}
+
+{% block content %}
+
+<form action="/vcard/qr" method="POST">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="firstname">First name</label>
+            <input class="form-control" type="text" id="firstname" name="firstname" placeholder="First" {% if contact %} value="{{ contact.get('firstname', '') }}" {% endif %}>
+        </div>
+        <div class="form-group col-md-6">
+            <label for="lastname">Last name</label>
+            <input class="form-control" type="text" id="lastname" name="lastname" placeholder="Last" {% if contact %} value="{{ contact.get('lastname', '') }}" {% endif %}>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="organisation">Organisation</label>
+            <input class="form-control" type="text" id="organisation" name="organisation" placeholder="Organisation" {% if contact %} value="{{ contact.get('organization', '') }}" {% endif %}>
+        </div>
+        <div class="form-group col-md-6">
+            <label for="job_title">Title</label>
+            <input class="form-control" type="text" id="job_title" name="job_title" placeholder="Title" {% if contact %} value="{{ contact.get('job_title', '') }}" {% endif %}>
+        </div>
+    </div>
+    {% if not contact %}
+        {% for i in [1, 2, 3] %}
+        <div class="form-row">
+            <div class="form-group col-md-8">
+                <label for="phone{{i}}">Phone</label>
+                <input class="form-control" type="text" id="phone{{i}}" name="phone{{i}}" placeholder="Phone">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="type{{i}}">Type</label>
+                <select class="custom-select" id="type{{i}}" name="type{{i}}">
+                    <option value="home">Home</option>
+                    <option value="mobile">Mobile</option>
+                    <option value="work">Work</option>
+                </select>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        {% for number in contact.get('phone') %}
+        <div class="form-row">
+            <div class="form-group col-md-8">
+                <label for="phone{{number}}">Phone</label>
+                <input class="form-control" type="text" id="phone{{number}}" name="phone{{number}}" placeholder="Phone" value="{{number.get('number')}}">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="type{{number}}">Type</label>
+                <select class="custom-select" id="type{{number}}" name="type{{number}}">
+                    <option value="{{ number.get('type', '').lower() }}">{{number.get('type', '')}}</option>
+                    <option value="home">Home</option>
+                    <option value="mobile">Mobile</option>
+                    <option value="work">Work</option>
+                </select>
+            </div>
+        </div>
+        {% endfor %}
+        {% if contact.get('phone') | length < 3 %}
+            {% for number in range(contact.get('phone') | length + 1, 4) %}
+            <div class="form-row">
+                <div class="form-group col-md-8">
+                    <label for="phone{{number}}">Phone</label>
+                    <input class="form-control" type="text" id="phone{{number}}" name="phone{{number}}" placeholder="Phone">
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="type{{number}}">Type</label>
+                    <select class="custom-select" id="type{{number}}" name="type{{number}}">
+                        <option value="home">Home</option>
+                        <option value="mobile">Mobile</option>
+                        <option value="work">Work</option>
+                    </select>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+    <div class="form-group">
+        <label for="email">E-Mail</label>
+        <input class="form-control" type="email" id="email" name="email" placeholder="E-Mail" {% if contact %} value="{{ contact.get('email', '') }}" {% endif %}>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="file" id="qrcode" value="qr" checked>
+        <label class="form-check-label" for="qrcode">
+            Download QR code
+        </label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="file" id="vcf" value="vcf">
+        <label class="form-check-label" for="vcf">
+            Download VCF file
+        </label>
+    </div>
+    <button type="submit" class="btn btn-success">Generate</button>
+    {% if not contact %}
+        <a class="btn btn-primary" href="/vcard/vcf">Upload VCF</a>
+    {% endif %}
+</form>
+{% endblock %}

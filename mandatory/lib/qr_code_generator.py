@@ -1,5 +1,6 @@
 import wifi_qrcode_generator
 import qrcode
+import json
 
 WPA_AUTHENTICATION = 'WPA'
 WEP_AUTHENTICATION = 'WEP'
@@ -17,3 +18,10 @@ def generate_link_qrcode(link='https://rimvydas.site'):
         link = 'http://' + link
     
     return qrcode.make(data=link)
+
+def load_wifi_data_from_json(wifi_string):
+    wifi_config = json.loads(wifi_string)
+
+    wifi_config['password'] = None if wifi_config['security'] == 'nopass' else wifi_config['password']
+
+    return wifi_config

@@ -1,6 +1,6 @@
 from flask import send_file, request, render_template, redirect, Response
 
-from mandatory.lib.qr_code_generator import generate_wifi_qrcode, WPA_AUTHENTICATION, generate_link_qrcode
+from mandatory.lib.qr_code_generator import generate_wifi_qrcode, WPA_AUTHENTICATION, generate_link_qrcode, load_wifi_data_from_json
 from mandatory.lib.vcard_generator import generate_vcard_qrcode, generate_vcard_string, load_data_from_vcard
 from mandatory.lib.location_qr_generator import create_address_qr, create_geo_coordinate_qr, get_geolocation, get_address
 
@@ -50,13 +50,42 @@ def wifi_qr():
     form_data = dict(request.form)
     img_io = BytesIO()
 
-    qr = generate_wifi_qrcode(ssid=form_data.get('ssid'), password=form_data.get('ssid'), authentication_type=form_data.get('security'), hidden=form_data.get('hidden') == 'hidden')
-    qr.save(img_io, format='PNG', quality=70)
-    img_io.seek(0)
-    qr.close()
+    file_type = form_data.get('file')
 
-    response = send_file(img_io, as_attachment=True, attachment_filename='qr.png')
-    return response
+    if file_type == 'qr':
+        qr = generate_wifi_qrcode(ssid=form_data.get('ssid'), password=form_data.get('ssid'), authentication_type=form_data.get('security'), hidden=form_data.get('hidden') == 'hidden')
+        qr.save(img_io, format='PNG', quality=70)
+        img_io.seek(0)
+        qr.close()
+
+        response = send_file(img_io, as_attachment=True, attachment_filename='qr.png')
+        return response
+    else:
+        wifi_config = {
+            'ssid': form_data.get('ssid'),
+            'password': form_data.get('password') if form_data.get('security') != 'nopass' else None,
+            'security': form_data.get('security'),
+            'hidden': form_data.get('hidden') == 'hidden'
+        }
+
+        wifi_config_str = json.dumps(wifi_config)
+
+        return Response(wifi_config_str, mimetype='application/json', headers={'Content-Disposition': 'attachement;filename=wifi_config.json'})
+
+@app.route('/wifi/upload', methods=['GET', 'POST'])
+def wifi_upload():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return render_template('wifi_upload.html')
+
+        json_file = request.files['file']
+
+        if is_extension_allowed(json_file.filename):
+            wifi_string = json_file.read().decode('utf-8')
+            wifi_data = load_wifi_data_from_json(wifi_string)
+            return render_template('wifi.html', wifi=wifi_data)
+    else:
+        return render_template('wifi_upload.html')
 
 @app.route('/vcard', methods=['GET'])
 def vcard_view():

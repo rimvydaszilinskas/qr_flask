@@ -6,27 +6,40 @@
 <form action="/wifi/qr" method="POST">
     <div class="form-group">
         <label for="ssid">SSID</label>
-        <input class="form-control" type="text" id="ssid" name="ssid" placeholder="SSID">
+        <input class="form-control" type="text" id="ssid" name="ssid" placeholder="SSID" {% if wifi %} value="{{wifi.get('ssid')}}" {% endif%}>
     </div>
     <div class="form-group">
         <label for="password">Password</label>
-        <input class="form-control" type="password" id="password" name="password" placeholder="SSID">
+        <input class="form-control" type="text" id="password" name="password" placeholder="password" {% if wifi %} value="{{wifi.get('password')}}" {% endif %}>
     </div>
     <div class="form-group">
         <label for="security">Security</label>
         <select class="custom-select" id="security" name="security">
-            <option value="nopass">None</option>
-            <option value="WEP">WEP</option>
-            <option value="WPA">WPA</option>
+            <option value="nopass" {% if wifi %} {% if wifi.get('security') == 'nopass' %} selected {% endif %} {% endif %}>None</option>
+            <option value="WEP" {% if wifi %} {% if wifi.get('security') == 'WEP' %} selected {% endif %} {% endif %}>WEP</option>
+            <option value="WPA" {% if wifi %} {% if wifi.get('security') == 'WPA' %} selected {% endif %} {% endif %}>WPA</option>
         </select>
     </div>
     <div class="form-group">
         <label for="hidden">Hidden</label>
         <select class="custom-select" id="hidden" name="hidden">
-            <option value="visible">No</option>
-            <option value="hidden">Yes</option>
+            <option value="visible" {% if wifi %} {% if not wifi.get('hidden') == false %} selected {% endif %} {% endif%}>No</option>
+            <option value="hidden" {% if wifi %} {% if wifi.get('hidden') == true %} selected {% endif %} {% endif%} >Yes</option>
         </select>
     </div>
-    <button type="submit" class="btn btn-success">Generate QR</button>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="file" id="qrcode" value="qr" checked>
+        <label class="form-check-label" for="qrcode">
+            Download QR code
+        </label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="file" id="json" value="json">
+        <label class="form-check-label" for="json">
+            Download JSON file
+        </label>
+    </div>
+    <button type="submit" class="btn btn-success">Generate</button>
+    <a class="btn btn-success" href="/wifi/upload">Upload JSON</a>
 </form>
 {% endblock %}
